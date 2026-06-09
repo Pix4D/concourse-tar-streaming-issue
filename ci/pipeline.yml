@@ -1,0 +1,58 @@
+---
+# Git get (Linux) → task (Windows). One branch per job — see ci/create-demo-branches.sh.
+
+resources:
+- name: exfil-windows-repo
+  type: git
+  webhook_token: ((concourse_gh_webhook))
+  source:
+    uri: ((git_uri))
+    branch: demo/exfil-windows
+    private_key: ((git_private_key))
+    disable_ci_skip: true
+
+- name: safe-intra-repo-windows-repo
+  type: git
+  webhook_token: ((concourse_gh_webhook))
+  source:
+    uri: ((git_uri))
+    branch: demo/safe-intra-repo-windows
+    private_key: ((git_private_key))
+    disable_ci_skip: true
+
+jobs:
+# [too loose] Symlink escapes the volume; task reads a host file
+# outside the repo. Should be blocked, is not (Windows).
+- name: exfil-absolute-symlink-windows
+  max_in_flight: 1
+  plan:
+  - get: exfil-windows-repo
+  - task: read-escaped-file
+    tags: [((windows_tag))]
+    config:
+      platform: windows
+      inputs:
+      - name: exfil-windows-repo
+      run:
+        path: cmd
+        args:
+        - /C
+        - 'dir exfil-windows-repo\exfil-windows && echo ==== too loose read ==== && type exfil-windows-repo\exfil-windows\leak'
+
+# [FALSE POSITIVE — too strict] Symlink stays inside the repo (../shared/...);
+# stream-in fails today. Should be allowed.
+- name: safe-intra-repo-symlink-windows
+  max_in_flight: 1
+  plan:
+  - get: safe-intra-repo-windows-repo
+  - task: read-safe-symlink
+    tags: [((windows_tag))]
+    config:
+      platform: windows
+      inputs:
+      - name: safe-intra-repo-windows-repo
+      run:
+        path: cmd
+        args:
+        - /C
+        - 'dir safe-intra-repo-windows-repo\safe-intra-repo-windows\workers && echo ==== false positive ==== && type safe-intra-repo-windows-repo\safe-intra-repo-windows\workers\images-vars.tf'
