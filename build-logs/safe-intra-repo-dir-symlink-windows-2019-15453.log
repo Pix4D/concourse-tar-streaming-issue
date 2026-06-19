@@ -1,0 +1,10 @@
+selected worker: wrk-lin-dummy
+INFO: waiting to acquire resource lock
+
+INFO: found existing resource cache
+
+initializing
+selected worker: wrk-vs2019-dummy
+streaming volume safe-intra-repo-dir-windows-repo from worker wrk-lin-dummy
+find or create container on worker wrk-vs2019-dummy: failed to create volume
+errored

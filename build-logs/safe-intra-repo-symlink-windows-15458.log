@@ -1,0 +1,76 @@
+selected worker: wrk-lin-dummy
+Identity added: /tmp/git-resource-private-key (ci@example.com)
+Cloning into '/tmp/build/get'...
+remote: Enumerating objects: 7, done.
+remote: Total 7 (delta 0), reused 6 (delta 0), pack-reused 0 (from 0)
+33dc98c demo: demo/safe-intra-repo-windows only
+initializing
+selected worker: wrk-win2025-dummy
+streaming volume safe-intra-repo-windows-repo from worker wrk-lin-dummy
+running powershell -Command Write-Host "==== file symlink metadata ===="
+Get-Item safe-intra-repo-windows-repo\safe-intra-repo-windows\workers\images-vars.tf | Format-List -Property *
+Write-Host "==== read via symlink (expected to fail) ===="
+Get-Content safe-intra-repo-windows-repo\safe-intra-repo-windows\workers\images-vars.tf
+
+==== file symlink metadata ====
+
+
+PSPath            : Microsoft.PowerShell.Core\FileSystem::C:\build\safe-intra-repo-windows-repo\safe-intra-repo-windo
+                    ws\workers\images-vars.tf
+PSParentPath      : Microsoft.PowerShell.Core\FileSystem::C:\build\safe-intra-repo-windows-repo\safe-intra-repo-windo
+                    ws\workers
+PSChildName       : images-vars.tf
+PSDrive           : C
+PSProvider        : Microsoft.PowerShell.Core\FileSystem
+PSIsContainer     : False
+Mode              : -a---l
+VersionInfo       : File:             C:\build\safe-intra-repo-windows-repo\safe-intra-repo-windows\workers\images-va
+                    rs.tf
+                    InternalName:
+                    OriginalFilename:
+                    FileVersion:
+                    FileDescription:
+                    Product:
+                    ProductVersion:
+                    Debug:            False
+                    Patched:          False
+                    PreRelease:       False
+                    PrivateBuild:     False
+                    SpecialBuild:     False
+                    Language:
+
+BaseName          : images-vars
+Target            : {../shared/images-vars.tf}
+LinkType          : SymbolicLink
+Name              : images-vars.tf
+Length            : 0
+DirectoryName     : C:\build\safe-intra
+                    -repo-windows-repo\safe-intra-repo-windows\workers
+Directory         : C:\build\safe-intra
+                    -repo-windows-repo\safe-intra-repo-windows\workers
+IsReadOnly        : False
+Exists            : True
+FullName          : C:\build\safe-intra
+                    -repo-windows-repo\safe-intra-repo-windows\workers\images-vars.tf
+Extension         : .tf
+CreationTime      : 6/19/2026 1:25:24 PM
+CreationTimeUtc   : 6/19/2026 11:25:24 AM
+LastAccessTime    : 6/19/2026 1:25:24 PM
+LastAccessTimeUtc : 6/19/2026 11:25:24 AM
+LastWriteTime     : 6/19/2026 1:25:24 PM
+LastWriteTimeUtc  : 6/19/2026 11:25:24 AM
+Attributes        : Archive, ReparsePoint
+
+
+
+==== read via symlink (expected to fail) ====
+Get-Content : The filename, directory name, or volume label syntax is incorrect.
+At line:4 char:1
++ Get-Content safe-intra-repo-windows-repo\safe-intra-repo-windows\work ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ReadError: (C:\build\...:String) [Get-Content]
+   , IOException
+    + FullyQualifiedErrorId : GetContentReaderIOError,Microsoft.PowerShell.Commands.GetContentCom
+   mand
+
+failed

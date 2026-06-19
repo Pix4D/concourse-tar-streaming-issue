@@ -1,5 +1,6 @@
 ---
 # Git get (Linux) → task (Windows). One branch per job — see ci/create-demo-branches.sh.
+# Demonstrates https://github.com/golang/go/issues/80073 (os.Root.Symlink path separators).
 
 resources:
 - name: exfil-windows-repo
@@ -20,6 +21,15 @@ resources:
     private_key: ((git_private_key))
     disable_ci_skip: true
 
+- name: safe-intra-repo-dir-windows-repo
+  type: git
+  webhook_token: ((concourse_gh_webhook))
+  source:
+    uri: ((git_uri))
+    branch: demo/safe-intra-repo-dir-windows
+    private_key: ((git_private_key))
+    disable_ci_skip: true
+
 jobs:
 # [too loose] Symlink escapes the volume; task reads a host file
 # outside the repo. Should be blocked, is not (Windows).
@@ -28,7 +38,7 @@ jobs:
   plan:
   - get: exfil-windows-repo
   - task: read-escaped-file
-    tags: [((windows_tag))]
+    tags: [((windows_tag_2025))]
     config:
       platform: windows
       inputs:
@@ -39,20 +49,73 @@ jobs:
         - /C
         - 'dir exfil-windows-repo\exfil-windows && echo ==== too loose read ==== && type exfil-windows-repo\exfil-windows\leak'
 
-# [FALSE POSITIVE — too strict] Symlink stays inside the repo (../shared/...);
-# stream-in fails today. Should be allowed.
+# [Go #80073 — file symlink] Intra-repo file symlink (../shared/...).
+# Stream-in succeeds but the symlink is unreadable: root.Symlink writes
+# forward slashes into the NTFS reparse point.
 - name: safe-intra-repo-symlink-windows
   max_in_flight: 1
   plan:
   - get: safe-intra-repo-windows-repo
   - task: read-safe-symlink
-    tags: [((windows_tag))]
+    tags: [((windows_tag_2025))]
     config:
       platform: windows
       inputs:
       - name: safe-intra-repo-windows-repo
       run:
-        path: cmd
+        path: powershell
         args:
-        - /C
-        - 'dir safe-intra-repo-windows-repo\safe-intra-repo-windows\workers && echo ==== false positive ==== && type safe-intra-repo-windows-repo\safe-intra-repo-windows\workers\images-vars.tf'
+        - -Command
+        - |
+          Write-Host "==== file symlink metadata ===="
+          Get-Item safe-intra-repo-windows-repo\safe-intra-repo-windows\workers\images-vars.tf | Format-List -Property *
+          Write-Host "==== read via symlink (expected to fail) ===="
+          Get-Content safe-intra-repo-windows-repo\safe-intra-repo-windows\workers\images-vars.tf
+
+# [Go #80073 — dir symlink, WS 2019] Intra-repo directory symlink
+# (config/access/data-vault -> ../../assets/bundle/user/embedded/data-vault).
+# Stream-in fails on Windows Server 2019: old robocopy cannot copy broken dir symlinks.
+- name: safe-intra-repo-dir-symlink-windows-2019
+  max_in_flight: 1
+  plan:
+  - get: safe-intra-repo-dir-windows-repo
+  - task: read-safe-dir-symlink
+    tags: [((windows_tag_2019))]
+    config:
+      platform: windows
+      inputs:
+      - name: safe-intra-repo-dir-windows-repo
+      run:
+        path: powershell
+        args:
+        - -Command
+        - |
+          $link = "safe-intra-repo-dir-windows-repo\safe-intra-repo-dir-windows\config\access\data-vault"
+          Write-Host "==== dir symlink metadata (expect Mode d----l) ===="
+          Get-Item -LiteralPath $link | Format-List -Property Mode, LinkType, Target
+          Write-Host "==== list via dir symlink (expected to fail) ===="
+          Get-ChildItem -LiteralPath $link
+
+# [Go #80073 — dir symlink, WS 2025] Same fixture as above.
+# Stream-in succeeds on Windows Server 2025 (newer robocopy) but the dir symlink
+# is still unreadable.
+- name: safe-intra-repo-dir-symlink-windows-2025
+  max_in_flight: 1
+  plan:
+  - get: safe-intra-repo-dir-windows-repo
+  - task: read-safe-dir-symlink
+    tags: [((windows_tag_2025))]
+    config:
+      platform: windows
+      inputs:
+      - name: safe-intra-repo-dir-windows-repo
+      run:
+        path: powershell
+        args:
+        - -Command
+        - |
+          $link = "safe-intra-repo-dir-windows-repo\safe-intra-repo-dir-windows\config\access\data-vault"
+          Write-Host "==== dir symlink metadata (expect Mode d----l) ===="
+          Get-Item -LiteralPath $link | Format-List -Property Mode, LinkType, Target
+          Write-Host "==== list via dir symlink (expected to fail) ===="
+          Get-ChildItem -LiteralPath $link

@@ -1,4 +1,5 @@
 git_uri: git@github.com:Pix4D/concourse-tar-streaming-issue.git
 git_branch: main
 git_private_key: ((github_ssh_key))
-windows_tag: win2025-vs2026-builder
+windows_tag_2019: vs2019
+windows_tag_2025: win2025-vs2026-builder

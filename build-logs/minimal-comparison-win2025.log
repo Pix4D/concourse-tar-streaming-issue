@@ -1,0 +1,64 @@
+PS C:\Users\Administrator> .\symlink-robocopy-demo.exe
+--- Symlink resolution (Go issue #80073) ---
+
+[FILE: os.Symlink   w/ Unix target]
+  Target Written : ..\dir-1\file-with-content
+  Resolution     : SUCCESS (content: "hello world")
+
+[FILE: root.Symlink w/ Unix target]
+  Target Written : ../dir-1/file-with-content
+  Resolution     : FAILED -> open symlink-demo\symlink-dir\root-unix-file: The filename, directory name, or volume label syntax is incorrect.
+
+[DIR:  os.Symlink   w/ Unix target]
+  Target Written : ..\dir-1
+  Resolution     : SUCCESS (found 1 entries)
+
+[DIR:  root.Symlink w/ Unix target]
+  Target Written : ../dir-1
+  Resolution     : FAILED -> open symlink-demo\symlink-dir\root-unix-dir: The filename, directory name, or volume label syntax is incorrect.
+
+--- Robocopy test (baggageclaim /sl flags) ---
+Robocopy path: C:\Windows\system32\robocopy.exe
+Robocopy version: 10.0.26100.1 (WinBuild.160101.0800)
+
+================================================================================
+Command:
+robocopy.exe /e /mt /r:5 /w:5 /sl C:\Users\Administrator\symlink-demo C:\Users\Administrator\symlink-demo-robocopy-dest
+Result: success (exit code 1)
+--------------------------------------------------------------------------------
+Robocopy output:
+-------------------------------------------------------------------------------
+   ROBOCOPY     ::     Robust File Copy for Windows
+-------------------------------------------------------------------------------
+
+  Started : Friday, June 19, 2026 1:49:39 PM
+   Source : C:\Users\Administrator\symlink-demo\
+     Dest : C:\Users\Administrator\symlink-demo-robocopy-dest\
+
+    Files : *.*
+
+  Options : *.* /S /E /DCOPY:DA /COPY:DAT /MT:8 /R:5 /W:5
+
+------------------------------------------------------------------------------
+nt
+100%        New File                   0        C:\Users\Administrator\symlink-demo\symlink-dir\os-unix-file
+100%        New File                   0        C:\Users\Administrator\symlink-demo\symlink-dir\root-unix-file
+
+------------------------------------------------------------------------------
+
+               Total    Copied   Skipped  Mismatch    FAILED    Extras
+    Dirs :         5         5         1         0         0         0
+   Files :         3         3         0         0         0         0
+   Bytes :        11        11         0         0         0         0
+   Times :   0:00:00   0:00:00                       0:00:00   0:00:00
+
+
+   Speed :               5,500 Bytes/sec.
+   Speed :               0.315 MegaBytes/min.
+   Ended : Friday, June 19, 2026 1:49:39 PM
+================================================================================
+
+--- Expected behaviour ---
+Windows Server 2019: robocopy fails (exit >= 2) copying broken directory symlinks
+Windows Server 2025: robocopy succeeds (exit <= 1) but symlinks remain unreadable
+This run: exit code 1

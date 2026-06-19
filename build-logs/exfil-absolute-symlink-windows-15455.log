@@ -1,0 +1,44 @@
+selected worker: wrk-lin-dummy
+Identity added: /tmp/git-resource-private-key (ci@example.com)
+Cloning into '/tmp/build/get'...
+remote: Enumerating objects: 4, done.
+remote: Total 4 (delta 0), reused 3 (delta 0), pack-reused 0 (from 0)
+1385561 demo: demo/exfil-windows only
+initializing
+no suitable workers found, waiting for worker...
+selected worker: wrk-win2025-dummy
+streaming volume exfil-windows-repo from worker wrk-lin-dummy
+running cmd /C dir exfil-windows-repo\exfil-windows && echo ==== too loose read ==== && type exfil-windows-repo\exfil-windows\leak
+ Volume in drive C is Windows
+ Volume Serial Number is 1C9E-0F09
+
+ Directory of C:\build\exfil-windows-repo\exfil-windows
+
+06/19/2026  01:25 PM    <DIR>          .
+06/19/2026  01:25 PM    <DIR>          ..
+06/19/2026  01:25 PM    <SYMLINK>      leak [\Windows\System32\drivers\etc\hosts]
+               1 File(s)              0 bytes
+               2 Dir(s)  141,982,998,528 bytes free
+==== too loose read ====
+# Copyright (c) 1993-2009 Microsoft Corp.
+#
+# This is a sample HOSTS file used by Microsoft TCP/IP for Windows.
+#
+# This file contains the mappings of IP addresses to host names. Each
+# entry should be kept on an individual line. The IP address should
+# be placed in the first column followed by the corresponding host name.
+# The IP address and the host name should be separated by at least one
+# space.
+#
+# Additionally, comments (such as these) may be inserted on individual
+# lines or following the machine name denoted by a '#' symbol.
+#
+# For example:
+#
+#      102.54.94.97     rhino.acme.com          # source server
+#       38.25.63.10     x.acme.com              # x client host
+
+# localhost name resolution is handled within DNS itself.
+#	127.0.0.1       localhost
+#	::1             localhost
+succeeded

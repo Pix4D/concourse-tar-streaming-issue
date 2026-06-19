@@ -18,6 +18,11 @@ make_branch() {
   local -a keep=("$@")
 
   echo "==> branch ${branch}"
+  git checkout main
+  if git show-ref --verify --quiet "refs/heads/${branch}"; then
+    echo "    removing existing local branch"
+    git branch -D "${branch}"
+  fi
   git checkout --orphan "$branch"
   git rm -rf --cached . >/dev/null 2>&1 || true
   rm -rf ./*
@@ -33,11 +38,15 @@ make_branch demo/exfil-windows \
 make_branch demo/safe-intra-repo-windows \
   safe-intra-repo-windows
 
+make_branch demo/safe-intra-repo-dir-windows \
+  safe-intra-repo-dir-windows
+
 git checkout main
 
 branches=(
   demo/exfil-windows
   demo/safe-intra-repo-windows
+  demo/safe-intra-repo-dir-windows
 )
 
 echo
